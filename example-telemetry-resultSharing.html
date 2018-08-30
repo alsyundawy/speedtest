@@ -87,6 +87,18 @@
 	div.testGroup{
 		display:inline-block;
 	}
+	#shareArea{
+		width:95%;
+		max-width:40em;
+		margin:0 auto;
+		margin-top:2em;
+	}
+	#shareArea > *{
+		display:block;
+		width:100%;
+		height:auto;
+		margin: 0.25em 0;
+	}
 	@media all and (max-width:65em){
 		body{
 			font-size:1.5vw;
@@ -149,6 +161,10 @@ function msToAmount(s){
 //SPEEDTEST AND UI CODE
 var w=null; //speedtest worker
 var data=null; //data from worker
+var testParameters={
+	telemetry_level:"basic"
+	//Optional: add more test parameters here
+}
 function startStop(){
 	if(w!=null){
 		//speedtest is running, abort
@@ -160,8 +176,9 @@ function startStop(){
 	}else{
 		//test is not running, begin
 		w=new Worker('speedtest_worker.min.js');
-		w.postMessage('start'); //Add optional parameters as a JSON object to this command
+		w.postMessage('start '+JSON.stringify(testParameters));
 		I("startStopBtn").className="running";
+		I("shareArea").style.display="none";
 		w.onmessage=function(e){
 			data=JSON.parse(e.data);
 			var status=data.testState;
@@ -170,6 +187,19 @@ function startStop(){
 				I("startStopBtn").className="";
 				w=null;
 				updateUI(true);
+				if(status==4){
+					//if testId is present, show sharing panel, otherwise do nothing
+					try{
+						var testId=Number(data.testId);
+						if(!isNaN(testId)){
+							var shareURL=window.location.href.substring(0,window.location.href.lastIndexOf("/"))+"/results/?id="+testId;
+							I("resultsImg").src=shareURL;
+							I("resultsURL").value=shareURL;
+							I("testId").innerHTML=testId;
+							I("shareArea").style.display="block";
+						}
+					}catch(e){}
+				}
 			}
 		};
 	}
@@ -218,7 +248,7 @@ function initUI(){
 </script>
 </head>
 <body>
-<h1>HTML5 Speedtest</h1>
+<h1>HTML5 Speedtest - Telemetry and sharing example</h1>
 <div id="startStopBtn" onclick="startStop()"></div>
 <div id="test">
 	<div class="testGroup">
@@ -252,7 +282,14 @@ function initUI(){
 	<div id="ipArea">
 		IP Address: <span id="ip"></span>
 	</div>
+	<div id="shareArea" style="display:none">
+		<h3>Share results</h3>
+		<p>Test ID: <span id="testId"></span></p>
+		<input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();this.focus();this.select();document.execCommand('copy');alert('Link copied')"/>
+		<img src="" id="resultsImg" />
+	</div>
 </div>
+<div>Basic telemetry is active; results will be saved in your database, without the full log. If the results don't appear, or the sharing panel doesn't appear at the end of the test, check the settings in telemetry_settings.php</div>
 <a href="https://github.com/adolfintel/speedtest">Source code</a>
 <script type="text/javascript">setTimeout(initUI,100);</script>
 </body>
