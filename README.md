@@ -1,3 +1,5 @@
+![HTML5 Speedtest Logo](https://github.com/adolfintel/speedtest/blob/master/.logo/Readme-Logo.png?raw=true)
+
 # HTML5 Speedtest
 
 No Flash, No Java, No Websocket, No Bullshit.
@@ -54,7 +56,7 @@ A Node.js implementation is available in the ```node``` branch, maintained by [d
 Send ETH at this address: ```0x8A5273d4e2618c4cff2C62d8EB731701FceEd8E3```
 
 ## License
-Copyright (C) 2016-2018 Federico Dossena
+Copyright (C) 2016-2019 Federico Dossena
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by

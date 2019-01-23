@@ -1,7 +1,7 @@
 # HTML5 Speedtest
 
 > by Federico Dossena  
-> Version 4.6.1, August 8, 2018
+> Version 4.7
 > [https://github.com/adolfintel/speedtest/](https://github.com/adolfintel/speedtest/)
 
 
@@ -173,15 +173,17 @@ w.postMessage('start '+JSON.stringify(params))
 ```
 
 #### Test parameters
-* __time_dl__: How long the download test should be in seconds. The test will continue regardless of this limit if the speed is still 0.00 when the limit is reached.
+* __time_dl_max__: Maximum duration of the download test in seconds. If auto duration is disabled, this is used as the duration of the test.
     * Default: `15`
     * Recommended: `>=5`
-* __time_ul__: How long the upload test should be in seconds. The test will continue regardless of this limit if the speed is still 0.00 when the limit is reached.
+* __time_ul_max__: Maximum duration of the upload test in seconds. If auto duration is disabled, this is used as the duration of the test.
     * Default: `15`
     * Recommended: `>=10`
+* __time_auto__: Automatically determine the duration of the download and upload tests, making them faster on faster connections, to avoid wasting data.
+    * Default: `true`
 * __count_ping__: How many pings to perform in the ping test
-    * Default: `35`
-    * Recommended: `>=20`
+    * Default: `10`
+    * Recommended: `>=3, <30`
 * __url_dl__: path to garbage.php or a large file to use for the download test.
     * Default: `garbage.php`
     * __Important:__ path is relative to js file
@@ -266,7 +268,8 @@ w.postMessage('start '+JSON.stringify(params))
 * __telemetry_level__: The type of telemetry to use. See the telemetry section for more info about this
 	* Default: `none`
 	* `basic`: send results only
-	* `full`: send results and debug info
+	* `full`: send results and timing information, even for aborted tests
+	* `debug`: same as full but also sends debug information. Not recommended.
 * __telemetry_extra__: Extra data that you want to be passed to the telemetry. This is a string field, if you want to pass an object, make sure you use ``JSON.stringify``. This string will be added to the database entry for this test.
 	
 ### Aborting the test prematurely
@@ -359,7 +362,8 @@ Edit your test page; where you start the worker, you need to specify the `teleme
 There are 3 levels:
 * `none`: telemetry is disabled (default)
 * `basic`: telemetry collects IP, ISP info, User Agent, Preferred language, Test results
-* `full`: same as above, but also collects a debug log (10-150 Kb each, not recommended unless you're developing the speedtest)
+* `full`: in addition to the basic telemetry, timing information is also collected so you know how long each part of the test took
+* `debug`: same as full, but also collects a debug log (10-150 Kb each, not recommended unless you're developing the speedtest)
 
 Example:
 ```js
@@ -409,6 +413,34 @@ Example: ```$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];```
 #### The results sharing just generates a blank image
 If the image doesn't display and the browser displays a broken image icon, FreeType2 is not installed or configured properly.  
 If the image is blank, this usually happens because PHP can't find the font files inside the `results` folder. You can fix your PHP config or edit `results/index.php` and use absolute paths for the fonts. This is a [known issue with PHP](http://php.net/manual/en/function.imagefttext.php) and no real solution is known.
+
+#### My server is behind Cloudflare and I can't reach full speed on some of the tests
+This is not a speedtest related issue, as it can be replicated in virtually any HTTP file upload/download.  
+Go to your domain's DNS settings and change "DNS and HTTP proxy (CDN)" to "DNS only", and wait for the settings to be applied (can take a few minutes).
+
+#### On Windows Server, using IIS, the upload test doesn't work, CORS errors are visible in the console
+This is a configuration issue. Make a file called web.config in wwwroot and adapt the following code:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <cors enabled="true" failUnlistedOrigins="false"> 
+      <add origin="*"> 
+        <allowHeaders allowAllRequestedHeaders="true" />
+        <allowMethods> 
+          <add method="GET" /> 
+          <add method="POST" /> 
+          <add method="PUT" /> 
+          <add method="DELETE" /> 
+          <add method="OPTIONS" /> 
+        </allowMethods> 
+        <exposeHeaders>
+        </exposeHeaders> 
+      </add>
+    </cors> 
+  </system.webServer> 
+</configuration>
+```
 
 ## Known bugs and limitations
 ### General

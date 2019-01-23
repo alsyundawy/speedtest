@@ -113,9 +113,9 @@ function I(id){return document.getElementById(id);}
 
 var w=null; //speedtest worker
 var parameters={ //custom test parameters. See doc.md for a complete list
-	time_dl: 10, //download test lasts 10 seconds
-	time_ul: 10, //upload test lasts 10 seconds
-	count_ping: 20, //ping+jitter test does 20 pings
+	time_dl_max: 20, //download test lasts up to 20 seconds
+	time_ul_max: 20, //upload test lasts up to 20 seconds
+	count_ping: 15, //ping+jitter test does 15 pings
     getIp_ispInfo: false //will only get IP address without ISP info
 };
 function startStop(){
