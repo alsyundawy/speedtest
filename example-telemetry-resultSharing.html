@@ -190,8 +190,8 @@ function startStop(){
 				if(status==4){
 					//if testId is present, show sharing panel, otherwise do nothing
 					try{
-						var testId=Number(data.testId);
-						if(!isNaN(testId)){
+						var testId=data.testId;
+						if(testId!=null){
 							var shareURL=window.location.href.substring(0,window.location.href.lastIndexOf("/"))+"/results/?id="+testId;
 							I("resultsImg").src=shareURL;
 							I("resultsURL").value=shareURL;

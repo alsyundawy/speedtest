@@ -1,7 +1,7 @@
 # HTML5 Speedtest
 
 > by Federico Dossena  
-> Version 4.7
+> Version 4.7.1
 > [https://github.com/adolfintel/speedtest/](https://github.com/adolfintel/speedtest/)
 
 
@@ -11,7 +11,7 @@ This test measures download speed, upload speed, ping and jitter.
 
 First of all, the requirements to run this test:
 
-* The browser have to support XHR Level 2 and Web Workers and Javascript must be enabled.
+* The browser must support XHR Level 2 and Web Workers and Javascript must be enabled.
     * Internet Explorer 11
     * Microsoft Edge 12+
     * Mozilla Firefox 12+
@@ -40,6 +40,8 @@ To install the test on your server, upload the following files:
 Later we'll see how to use the test without PHP, and how to configure the telemetry and result sharing if you want to use that.
 
 __Important:__ keep all the files together; all paths are relative to the js file
+
+__Important:__ Make sure PHP is allowed to write to the directory where you're installing the speedtest because getIP.php needs to create a cache file to improve performance.
 
 ## Basic usage
 You can start using this speedtest on your site without any special knowledge.  
@@ -148,7 +150,7 @@ The response from the worker is a JSON string containing these entries:
 * __dlProgress__: the progress of the download test as a number between 0 and 1
 * __ulProgress__: the progress of the upload test as a number between 0 and 1
 * __pingProgress__: the progress of the ping+jitter test as a number between 0 and 1
-* __testId__: when telemetry is active, this is the ID of the test as an integer. This string is 'noID' until the test is finished (testState 4). This ID is used for results sharing
+* __testId__: when telemetry is active, this is the ID of the test in the database. This string is null until the test is finished (testState 4), or if telemetry encounters an error. This ID is used for results sharing
 
 ### Starting the test
 To start the test with the default settings, which is usually the best choice, send the start command to the worker:
@@ -381,6 +383,15 @@ This feature requires Telemetry to be enabled, and FreeType2 must be installed i
 
 __Important:__ This feature relies on PHP functions `imagefttext` and `imageftbbox` that are well known for being problematic. The most common problem is that they can't find the font files and therefore nothing is drawn. This problem is metioned [here](http://php.net/manual/en/function.imagefttext.php) and was experienced by a lot of users.
 
+#### Obfuscated Test IDs
+By default, the telemetry generates a progressive ID for each test. Even if no sensitive information is leaked, you might not want users to be able to guess other test IDs. To avoid this, you can turn on ID obfuscation, which turns IDs into a reversible hash, much like YouTube video IDs.
+
+To enable this feature, edit `telemetry_settings.php` and set `enable_id_obfuscation` to true.
+
+From now on, all test IDs will be obfuscated using a unique salt. The IDs in the database are still progressive, but users will only know their obfuscated versions and won't be able to easily guess other IDs.
+
+__Important:__ Make sure PHP is allowed to write to the `telemetry` folder. The salt will be stored in a file called `idObfuscation_salt.php`. This file is like a private key, don't lose it or you won't be able to deobfuscate IDs anymore!
+
 ### Seeing the results
 A basic front-end for visualizing and searching tests by ID is available in `telemetry/stats.php`.
 
@@ -441,6 +452,10 @@ This is a configuration issue. Make a file called web.config in wwwroot and adap
   </system.webServer> 
 </configuration>
 ```
+
+#### ID obfuscation doesn't work (incorrect output, blank results image)
+ID obfuscation only works on 64 bit PHP (requires PHP_INT_SIZE to be 8).  
+Note that older versions of PHP 5 on Windows use PHP_INT_SIZE of 4, even if they're 64 bit. If you're in this situation, update your PHP install.
 
 ## Known bugs and limitations
 ### General

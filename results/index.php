@@ -52,6 +52,8 @@ $WATERMARK_TEXT="HTML5 Speedtest";
 
 $id=$_GET["id"];
 include_once('../telemetry/telemetry_settings.php');
+require '../telemetry/idObfuscation.php';
+if($enable_id_obfuscation) $id=deobfuscateId($id);
 $conn=null; $q=null;
 $ispinfo=null; $dl=null; $ul=null; $ping=null; $jit=null;
 if($db_type=="mysql"){
