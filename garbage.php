@@ -19,7 +19,7 @@ $data=openssl_random_pseudo_bytes(1048576);
 // Deliver chunks of 1048576 bytes
 $chunks=isset($_GET['ckSize']) ? intval($_GET['ckSize']) : 4;
 if(empty($chunks)){$chunks = 4;}
-if($chunks>100){$chunks = 100;}
+if($chunks>1024){$chunks = 1024;}
 for($i=0;$i<$chunks;$i++){
     echo $data;
     flush();

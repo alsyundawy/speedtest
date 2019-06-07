@@ -1,5 +1,5 @@
 /*
-	HTML5 Speedtest v4.7.1
+	HTML5 Speedtest v4.7.2
 	by Federico Dossena
 	https://github.com/adolfintel/speedtest/
 	GNU LGPLv3 License
@@ -50,13 +50,13 @@ var settings = {
 	url_getIp: "getIP.php", // path to getIP.php relative to this js file, or a similar thing that outputs the client's ip
 	getIp_ispInfo: true, //if set to true, the server will include ISP info with the IP address
 	getIp_ispInfo_distance: "km", //km or mi=estimate distance from server in km/mi; set to false to disable distance estimation. getIp_ispInfo must be enabled in order for this to work
-	xhr_dlMultistream: 10, // number of download streams to use (can be different if enable_quirks is active)
+	xhr_dlMultistream: 6, // number of download streams to use (can be different if enable_quirks is active)
 	xhr_ulMultistream: 3, // number of upload streams to use (can be different if enable_quirks is active)
 	xhr_multistreamDelay: 300, //how much concurrent requests should be delayed
 	xhr_ignoreErrors: 1, // 0=fail on errors, 1=attempt to restart a stream if it fails, 2=ignore all errors
 	xhr_dlUseBlob: false, // if set to true, it reduces ram usage but uses the hard drive (useful with large garbagePhp_chunkSize and/or high xhr_dlMultistream)
 	xhr_ul_blob_megabytes: 20, //size in megabytes of the upload blobs sent in the upload test (forced to 4 on chrome mobile)
-	garbagePhp_chunkSize: 20, // size of chunks sent by garbage.php (can be different if enable_quirks is active)
+	garbagePhp_chunkSize: 100, // size of chunks sent by garbage.php (can be different if enable_quirks is active)
 	enable_quirks: true, // enable quirks for specific browsers. currently it overrides settings to optimize for specific browsers, unless they are already being overridden with the start command
 	ping_allowPerformanceApi: true, // if enabled, the ping test will attempt to calculate the ping more precisely using the Performance API. Currently works perfectly in Chrome, badly in Edge, and not at all in Firefox. If Performance API is not supported or the result is obviously wrong, a fallback is provided.
 	overheadCompensationFactor: 1.06, //can be changed to compensatie for transport overhead. (see doc.md for some other values)
@@ -128,6 +128,10 @@ this.addEventListener("message", function(e) {
 					if (typeof s.xhr_ulMultistream === "undefined") {
 						// ff more precise with 1 upload stream
 						settings.xhr_ulMultistream = 1;
+					}
+					if (typeof s.xhr_ulMultistream === "undefined") {
+						// ff performance API sucks
+						settings.ping_allowPerformanceApi = false;
 					}
 				}
 				if (/Edge.(\d+\.\d+)/i.test(ua)) {
@@ -595,15 +599,17 @@ function pingTest(done) {
 						//try to get accurate performance timing using performance api
 						var p = performance.getEntries();
 						p = p[p.length - 1];
-						var d = p.responseStart - p.requestStart; //best precision: chromium-based
-						if (d <= 0) d = p.duration; //edge: not so good precision because it also considers the overhead and there is no way to avoid it
+						var d = p.responseStart - p.requestStart;
+						if (d <= 0) d = p.duration;
 						if (d > 0 && d < instspd) instspd = d;
 					} catch (e) {
 						//if not possible, keep the estimate
-						//firefox can't access performance api from worker: worst precision
 						tverb("Performance API not supported, using estimate");
 					}
 				}
+				//noticed that some browsers randomly have 0ms ping
+				if(instspd<1) instspd=prevInstspd;
+				if(instspd<1) instspd=1;
 				var instjitter = Math.abs(instspd - prevInstspd);
 				if (i === 1) ping = instspd;
 				/* first ping, can't tell jitter yet*/ else {

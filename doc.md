@@ -1,7 +1,7 @@
 # HTML5 Speedtest
 
 > by Federico Dossena  
-> Version 4.7.1
+> Version 4.7.2
 > [https://github.com/adolfintel/speedtest/](https://github.com/adolfintel/speedtest/)
 
 
@@ -40,6 +40,8 @@ To install the test on your server, upload the following files:
 Later we'll see how to use the test without PHP, and how to configure the telemetry and result sharing if you want to use that.
 
 __Important:__ keep all the files together; all paths are relative to the js file
+
+__Important:__ If you expect to serve more than ~500 tests per day, you will need to sign up to [ipinfo.io](https://ipinfo.io) and edit `getIP_ipInfo_apikey.php` to set your access token. IpInfo.io has kindly offered free access to their APIs for users of this project; if you're interested, contact me at [info@fdossena.com](mailto:info@fdossena.com) and provide a description of what you intend to do with the project, and you'll get the API key. This is only required if you intend to use ISP and distance detection.
 
 __Important:__ Make sure PHP is allowed to write to the directory where you're installing the speedtest because getIP.php needs to create a cache file to improve performance.
 
@@ -223,11 +225,11 @@ w.postMessage('start '+JSON.stringify(params))
 * __enable_quirks__: enables browser-specific optimizations. These optimizations override some of the default settings. They do not override settings that are explicitly set.
     * Default: `true`
 * __garbagePhp_chunkSize__: size of chunks sent by garbage.php in megabytes
-    * Default: `20`
+    * Default: `100`
     * Recommended: `>=10`
-    * Maximum: `100`
+    * Maximum: `1024`
 * __xhr_dlMultistream__: how many streams should be opened for the download test
-    * Default: `10`
+    * Default: `6`
     * Recommended: `>=3`
     * Default override: 3 on Edge if enable_quirks is true
     * Default override: 5 on Chromium-based if enable_quirks is true
@@ -256,6 +258,7 @@ w.postMessage('start '+JSON.stringify(params))
     * Recommended: `>=1`
 * __ping_allowPerformanceApi__: toggles use of Performance API to improve accuracy of Ping/Jitter test on browsers that support it.
 	* Default: `true`
+	* Default override: `false` on Firefox because its performance API implementation is inaccurate
 * __useMebibits__: use mebibits/s instead of megabits/s for the speeds
 	* Default: `false`
 * __overheadCompensationFactor__: compensation for HTTP and network overhead. Default value assumes typical MTUs used over the Internet. You might want to change this if you're using this in your internal network with different MTUs, or if you're using IPv6 instead of IPv4.
