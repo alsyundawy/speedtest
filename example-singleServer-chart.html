@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>HTML5 Speedtest</title>
+    <link rel="shortcut icon" href="favicon.ico">
     <style type="text/css">
         html,
         body {
@@ -35,9 +36,10 @@
             margin: 0 auto;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script> <!--THIS LIBRARY SUCKS!-->
+    <script src="speedtest.js"></script>
     <script type="text/javascript">
-        var w = null
+        var s = null
         function runTest() {
             var chart1ctx = document.getElementById('chart1Area').getContext('2d')
             var chart2ctx = document.getElementById('chart2Area').getContext('2d')
@@ -197,27 +199,16 @@
             document.getElementById('startBtn').style.display = 'none'
             document.getElementById('testArea').style.display = ''
             document.getElementById('abortBtn').style.display = ''
-            w = new Worker('speedtest_worker.min.js')
-            var interval = setInterval(function () { w.postMessage('status') }, 100)
-            w.onmessage = function (event) {
-                var data = JSON.parse(event.data)
+            s=new Speedtest();
+            s.onupdate = function (data) {
                 var status = data.testState
-                if (status >= 4) {
-                    clearInterval(interval)
-                    document.getElementById('abortBtn').style.display = 'none'
-                    document.getElementById('startBtn').style.display = ''
-                    w = null
-                }
-                if (status === 5) {
-                    document.getElementById('testArea').style.display = 'none'
-                }
                 if (status === 1 && Number(data.dlStatus) > 0) {
-                    chart1.data.datasets[0].data[~~(20*Number(data.dlProgress))]=(Number(data.dlStatus))
+                    for(var i=~~(20*Number(data.dlProgress));i<20;i++) chart1.data.datasets[0].data[i]=(Number(data.dlStatus))
                     chart1.data.labels[chart1.data.datasets[0].data.length - 1] = ''
                     chart1.update()
                 }
                 if (status === 3 && Number(data.ulStatus) > 0) {
-                    chart1.data.datasets[1].data[~~(20*Number(data.ulProgress))]=(Number(data.ulStatus))
+                    for(var i=~~(20*Number(data.ulProgress));i<20;i++) chart1.data.datasets[1].data[i]=(Number(data.ulStatus))
                     chart1.data.labels[chart1.data.datasets[1].data.length - 1] = ''
                     chart1.update()
                 }
@@ -230,10 +221,18 @@
                 }
                 ip.textContent = data.clientIp
             }
-            w.postMessage('start')
+            s.onend=function(aborted){
+                document.getElementById('abortBtn').style.display = 'none'
+                document.getElementById('startBtn').style.display = ''
+                s = null
+                if (aborted) {
+                    document.getElementById('testArea').style.display = 'none'
+                }
+            }
+            s.start();
         }
         function abortTest() {
-            if (w) w.postMessage('abort')
+            if (s) s.abort();
         }
     </script>
 </head>

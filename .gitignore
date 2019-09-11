@@ -1,2 +1,2 @@
-telemetry/idObfuscation_salt.php
-getIP_serverLocation.php
+results/idObfuscation_salt.php
+backend/getIP_serverLocation.php
