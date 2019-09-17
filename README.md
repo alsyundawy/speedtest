@@ -35,6 +35,9 @@ Works with mobile versions too.
 ## Installation videos
 * [Quick start installation guide for Ubuntu Server 19.04](https://fdossena.com/?p=speedtest/quickstart_v5_ubuntu.frag)
 
+## Android app
+A template to build an Android client for your HTML5 Speedtest installation is available [here](https://github.com/adolfintel/speedtest-android).
+
 ## Docker
 Please see the `docker` branch
 
