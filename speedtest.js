@@ -1,7 +1,7 @@
 /*
-	HTML5 Speedtest - Main
+	LibreSpeed - Main
 	by Federico Dossena
-	https://github.com/adolfintel/speedtest/
+	https://github.com/librespeed/speedtest/
 	GNU LGPLv3 License
 */
 
@@ -49,7 +49,7 @@ function Speedtest() {
   this._settings = {}; //settings for the speedtest worker
   this._state = 0; //0=adding settings, 1=adding servers, 2=server selection done, 3=test running, 4=done
   console.log(
-    "HTML5 Speedtest by Federico Dossena v5.0 - https://github.com/adolfintel/speedtest"
+    "LibreSpeed by Federico Dossena v5.1 - https://github.com/librespeed/speedtest"
   );
 }
 

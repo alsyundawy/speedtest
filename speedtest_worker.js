@@ -1,7 +1,7 @@
 /*
-	HTML5 Speedtest - Worker
+	LibreSpeed - Worker
 	by Federico Dossena
-	https://github.com/adolfintel/speedtest/
+	https://github.com/librespeed/speedtest/
 	GNU LGPLv3 License
 */
 
@@ -631,7 +631,7 @@ function pingTest(done) {
 				var instjitter = Math.abs(instspd - prevInstspd);
 				if (i === 1) ping = instspd;
 				/* first ping, can't tell jitter yet*/ else {
-					ping = instspd < ping ? instspd : ping * 0.8 + instspd * 0.2; // update ping, weighted average. if the instant ping is lower than the current average, it is set to that value instead of averaging
+					if (instspd < ping) ping = instspd; // update ping, if the instant ping is lower
 					if (i === 2) jitter = instjitter;
 					//discard the first jitter measurement because it might be much higher than it should be
 					else jitter = instjitter > jitter ? jitter * 0.3 + instjitter * 0.7 : jitter * 0.8 + instjitter * 0.2; // update jitter, weighted average. spikes in ping values are given more weight.

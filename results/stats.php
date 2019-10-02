@@ -9,7 +9,7 @@ header('Pragma: no-cache');
 <!DOCTYPE html>
 <html>
 <head>
-<title>HTML5 Speedtest - Stats</title>
+<title>LibreSpeed - Stats</title>
 <style type="text/css">
 	html,body{
 		margin:0;
@@ -54,7 +54,7 @@ header('Pragma: no-cache');
 </style>
 </head>
 <body>
-<h1>HTML5 Speedtest - Stats</h1>
+<h1>LibreSpeed - Stats</h1>
 <?php
 include_once("telemetry_settings.php");
 require "idObfuscation.php";
@@ -110,7 +110,7 @@ if($stats_password=="PASSWORD"){
 				$q->store_result();
 				$q->bind_result($id,$timestamp,$ip,$ispinfo,$ua,$lang,$dl,$ul,$ping,$jitter,$log,$extra);
 			} else if($db_type=="sqlite"||$db_type=="postgresql"){
-				$q=$conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra from speedtest_users order by timestamp desc limit 0,100");
+				$q=$conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra from speedtest_users order by timestamp desc limit 100");
 				$q->execute();
 			}else die();
 		}

@@ -1,13 +1,13 @@
-![HTML5 Speedtest Logo](https://github.com/adolfintel/speedtest/blob/master/.logo/Readme-Logo.png?raw=true)
+![LibreSpeed Logo](https://github.com/librespeed/speedtest/blob/master/.logo/logo3.png?raw=true)
 
-# HTML5 Speedtest
+# LibreSpeed
 
 No Flash, No Java, No Websocket, No Bullshit.
 
 This is a very lightweight Speedtest implemented in Javascript, using XMLHttpRequest and Web Workers.
 
 ## Try it
-[Take a Speedtest](http://speedtest.fdossena.com)
+[Take a Speedtest](https://speedtest.fdossena.com)
 
 ## Compatibility
 All modern browsers are supported: IE11, latest Edge, latest Chrome, latest Firefox, latest Safari.  
@@ -23,7 +23,7 @@ Works with mobile versions too.
 * Results sharing (optional)
 * Multiple Points of Test (optional)
 
-![Screenshot](https://speedtest.fdossena.com/mpot_v5.gif)
+![Screenshot](https://speedtest.fdossena.com/mpot_v6.gif)
 
 
 ## Server requirements
@@ -36,7 +36,7 @@ Works with mobile versions too.
 * [Quick start installation guide for Ubuntu Server 19.04](https://fdossena.com/?p=speedtest/quickstart_v5_ubuntu.frag)
 
 ## Android app
-A template to build an Android client for your HTML5 Speedtest installation is available [here](https://github.com/adolfintel/speedtest-android).
+A template to build an Android client for your LibreSpeed installation is available [here](https://github.com/librespeed/speedtest-android).
 
 ## Docker
 Please see the `docker` branch
