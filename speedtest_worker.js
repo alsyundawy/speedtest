@@ -126,11 +126,7 @@ this.addEventListener("message", function(e) {
 			if (settings.enable_quirks || (typeof s.enable_quirks !== "undefined" && s.enable_quirks)) {
 				var ua = navigator.userAgent;
 				if (/Firefox.(\d+\.\d+)/i.test(ua)) {
-					if (typeof s.xhr_ulMultistream === "undefined") {
-						// ff more precise with 1 upload stream
-						settings.xhr_ulMultistream = 1;
-					}
-					if (typeof s.xhr_ulMultistream === "undefined") {
+					if (typeof s.ping_allowPerformanceApi === "undefined") {
 						// ff performance API sucks
 						settings.ping_allowPerformanceApi = false;
 					}

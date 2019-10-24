@@ -367,7 +367,6 @@ __Advanced parameters:__ (Seriously, don't change these unless you know what you
 * __xhr_ulMultistream__: how many streams should be opened for the upload test
     * Default: `3`
     * Recommended: `>=1`
-    * Default override: 1 on Firefox if enable_quirks is true
 * __xhr_ul_blob_megabytes__: size in megabytes of the blobs sent during the upload test
 	* Default: `20`
 	* Default override: 4 on Chromium-based mobile browsers (limitation introduced around version 65). This will be forced
