@@ -49,7 +49,7 @@ function Speedtest() {
   this._settings = {}; //settings for the speedtest worker
   this._state = 0; //0=adding settings, 1=adding servers, 2=server selection done, 3=test running, 4=done
   console.log(
-    "LibreSpeed by Federico Dossena v5.1 - https://github.com/librespeed/speedtest"
+    "LibreSpeed by Federico Dossena v5.2.4 - https://github.com/librespeed/speedtest"
   );
 }
 
@@ -69,10 +69,10 @@ Speedtest.prototype = {
    * Invalid values or nonexistant parameters will be ignored by the speedtest worker.
    */
   setParameter: function(parameter, value) {
-    if (this._state != 0)
-      throw "You cannot change the test settings after adding server or starting the test";
+    if (this._state == 3)
+      throw "You cannot change the test settings while running the test";
     this._settings[parameter] = value;
-    if(parameter === "temeletry_extra"){
+    if(parameter === "telemetry_extra"){
         this._originalExtra=this._settings.telemetry_extra;
     }
   },
@@ -128,6 +128,40 @@ Speedtest.prototype = {
     for (var i = 0; i < list.length; i++) this.addTestPoint(list[i]);
   },
   /**
+   * Load a JSON server list from URL (multiple points of test)
+   * url: the url where the server list can be fetched. Must be an array with objects containing the following elements:
+   *  {
+   *       "name": "User friendly name",
+   *       "server":"http://yourBackend.com/",   URL to your server. You can specify http:// or https://. If your server supports both, just write // without the protocol
+   *       "dlURL":"garbage.php"   path to garbage.php or its replacement on the server
+   *       "ulURL":"empty.php"   path to empty.php or its replacement on the server
+   *       "pingURL":"empty.php"   path to empty.php or its replacement on the server. This is used to ping the server by this selector
+   *       "getIpURL":"getIP.php"   path to getIP.php or its replacement on the server
+   *   }
+   * result: callback to be called when the list is loaded correctly. An array with the loaded servers will be passed to this function, or null if it failed
+   */
+  loadServerList: function(url,result) {
+    if (this._state == 0) this._state = 1;
+    if (this._state != 1) throw "You can't add a server after server selection";
+    this._settings.mpot = true;
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function(){
+      try{
+        var servers=JSON.parse(xhr.responseText);
+        for(var i=0;i<servers.length;i++){
+          this._checkServerDefinition(servers[i]);
+        }
+        this.addTestPoints(servers);
+        result(servers);
+      }catch(e){
+        result(null);
+      }
+    }.bind(this);
+    xhr.onerror = function(){result(null);}
+    xhr.open("GET",url);
+    xhr.send();
+  },
+  /**
    * Returns the selected server (multiple points of test)
    */
   getSelectedServer: function() {
@@ -157,9 +191,9 @@ Speedtest.prototype = {
         throw "You can't select a server while the test is running";
     }
     if (this._selectServerCalled) throw "selectServer already called"; else this._selectServerCalled=true;
-    /*this function goes through a list of servers. For each server, the ping is measured, then the server with the function result is called with the best server, or null if all the servers were down.
+    /*this function goes through a list of servers. For each server, the ping is measured, then the server with the function selected is called with the best server, or null if all the servers were down.
      */
-    var select = function(serverList, result) {
+    var select = function(serverList, selected) {
       //pings the specified URL, then calls the function result. Result will receive a parameter which is either the time it took to ping the URL, or -1 if something went wrong.
       var PING_TIMEOUT = 2000;
       var USE_PING_TIMEOUT = true; //will be disabled on unsupported browsers
@@ -167,7 +201,7 @@ Speedtest.prototype = {
         //IE11 doesn't support XHR timeout
         USE_PING_TIMEOUT = false;
       }
-      var ping = function(url, result) {
+      var ping = function(url, rtt) {
         url += (url.match(/\?/) ? "&" : "?") + "cors=true";
         var xhr = new XMLHttpRequest();
         var t = new Date().getTime();
@@ -183,11 +217,11 @@ Speedtest.prototype = {
               if (d <= 0) d = p.duration;
               if (d > 0 && d < instspd) instspd = d;
             } catch (e) {}
-            result(instspd);
-          } else result(-1);
+            rtt(instspd);
+          } else rtt(-1);
         }.bind(this);
         xhr.onerror = function() {
-          result(-1);
+          rtt(-1);
         }.bind(this);
         xhr.open("GET", url);
         if (USE_PING_TIMEOUT) {
@@ -237,7 +271,7 @@ Speedtest.prototype = {
           )
             bestServer = serverList[i];
         }
-        result(bestServer);
+        selected(bestServer);
       }.bind(this);
       var nextServer = function() {
         if (i == serverList.length) {
@@ -296,13 +330,13 @@ Speedtest.prototype = {
         console.error("Speedtest onupdate event threw exception: " + e);
       }
       if (data.testState >= 4) {
+	  clearInterval(this.updater);
+        this._state = 4;
         try {
           if (this.onend) this.onend(data.testState == 5);
         } catch (e) {
           console.error("Speedtest onend event threw exception: " + e);
         }
-        clearInterval(this.updater);
-        this._state = 4;
       }
     }.bind(this);
     this.updater = setInterval(

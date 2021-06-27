@@ -32,7 +32,7 @@ CREATE TABLE `speedtest_users` (
   `ping` text,
   `jitter` text,
   `log` longtext
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Indexes for dumped tables
